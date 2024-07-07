@@ -1,2 +1,1 @@
-The Property Recommender System is designed to assist users in finding suitable properties based on their preferences and requirements. This system utilizes a combination of user input, property data, and recommendation algorithms to suggest relevant listings.
-
+The Property Recommender System is designed to assist users in finding suitable properties based on their preferences and requirements. This system leverages property data and advanced recommendation algorithms to provide personalized suggestions. Additionally, it visualizes user search data, providing valuable insights for property developers and stakeholders in the real estate industry.
