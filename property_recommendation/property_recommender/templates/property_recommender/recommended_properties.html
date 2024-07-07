@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Properties</title>
+</head>
+<body>
+    <h1>Recommended Properties</h1>
+    <div id="recommended-properties">
+        {% if recommended_properties %}
+            {% for property in recommended_properties %}
+                <div>
+                    <h3>{{ property.location }}</h3>
+                    <p>Bedrooms: {{ property.num_bedrooms }}</p>
+                    <p>Price: {{ property.price }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No properties found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+
+
+<script>
+    $(document).ready(function() {
+        $('.btn-related-properties').click(function() {
+            var location = $(this).data('location');
+            var bedrooms = $(this).data('bedrooms');
+            var price = $(this).data('price');
+    
+            window.location.href = '/related_properties/?location=' + encodeURIComponent(location) +
+                                   '&bedrooms=' + bedrooms +
+                                   '&min_price=-2807000' +  // example values, adjust as needed
+                                   '&max_price=' + price;   // using the price from data attribute
+        });
+    });
+    </script>
+    
+
+</body>
+</html>

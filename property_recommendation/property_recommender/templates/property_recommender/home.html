@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Recommendation System</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Include jQuery UI -->
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+</head>
+<body>
+    <div class="px-3 py-2 border-bottom mb-3">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center">
+            <form class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" role="search">
+                <h3>Property Recommendation System</h3>
+            </form>
+    
+            <div class="text-end">
+                <button type="button" class="btn btn-primary"><a href="{% url 'login' %}" style="text-decoration: none; color: white">Login</a></button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container"><br><br>
+        <h3>Enter your requirements below</h3>
+        <form method="POST" action="{% url 'property_search' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="location"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/></svg> Location:</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+            </div>
+            <div class="form-group">
+                <label for="bedrooms"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                    <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"/>
+                    </svg> Number of Bedrooms:</label>
+                <input type="number" class="form-control" id="bedrooms" name="bedrooms" required>
+            </div>
+            <div class="form-group">
+                <label for="min_price"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4z"/>
+                    </svg> Minimum Price:</label>
+                <input type="number" class="form-control" id="min_price" name="min_price" required>
+            </div>
+            <div class="form-group">
+                <label for="max_price"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4z"/>
+                    </svg> Maximum Price:</label>
+                <input type="number" class="form-control" id="max_price" name="max_price" required>
+            </div>
+            <br>
+            
+            <button type="submit" class="btn btn-primary">Find properties</button><br>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- FontAwesome for icons (optional) -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script>
+        $(document).ready(function() {
+            // List of location names (replace with your actual data)
+            var locationNames =
+            // Initialize autocomplete
+            $('#location').autocomplete({
+                source:  [
+                'JP Nagar Phase 1', 'Dasarahalli on Tumkur Road', 'Kannur on Thanisandra Main Road', 'Doddanekundi', 'Kengeri',
+                'Horamavu', 'Thanisandra', 'Ramamurthy Nagar', 'Whitefield Hope Farm Junction', 'Electronic City Phase 1',
+                'Yelahanka', 'Anjanapura', 'Jalahalli', 'Kasavanahalli', 'Bommasandra', 'Bellandur', 'RR Nagar', 'Begur', 'Hosa Road',
+                'Sahakar Nagar', 'Kadugodi', 'Jakkur', 'Jigani', 'Krishnarajapura', 'Brookefield', 'Banashankari', 'Nelamangala',
+                'Attibele', 'Banaswadi', 'Kodigehalli', 'ITPL', 'Uttarahalli Hobli', 'Chikkagubbi on Hennur Main Road', 'Varthur',
+                'Vidyaranyapura', 'Electronic City Phase 2', 'J. P. Nagar', 'K. Chudahalli', 'Narayanaghatta', 'Anekal City', 'Sarjapur',
+                'Koramangala', 'Hebbal', 'Budigere Cross', 'Bommanahalli', 'Electronics City', 'Chikkalasandra', 'Kogilu', 'Nayandahalli',
+                'Bilekahalli', 'Muneshwara Nagar', 'Junnasandra', 'Narayanapura on Hennur Main Road', 'Kothanur', 'Kadugodi Industrial Area',
+                'Sarjapur Road Wipro To Railway Crossing', 'RMV Extension Stage 2', 'Kudlu', 'Talaghattapura', 'Kumbalgodu', 'Carmelaram',
+                'Uttarahalli', 'Anagalapura Near Hennur Main Road', 'Avalahalli Off Sarjapur Road', 'R T  Nagar', 'JP Nagar Phase 7',
+                'Subramanyapura', 'JP Nagar Phase 4', 'JP Nagar Phase 8', 'Amruthahalli', 'Nagarbhavi', 'Chandapura', 'Marsur', 'JP Nagar Phase 3',
+    'JP Nagar Phase 9', 'Gottigere', 'Kanakapura Road Beyond Nice Ring Road', 'Harlur', 'Konanakunte', 'Richmond Town', 'Jayanagar',
+    'Domlur', 'Devanahalli', 'Hulimavu', 'Kumaraswamy Layout', 'Bikasipura', 'Singasandra', 'JP Nagar Phase 6', 'Sanjaynagar',
+    'CV Raman Nagar', 'Padmanabhanagar', 'Hennur', 'KPC Layout', 'R.K. Hegde Nagar', 'Kannamangala', 'Yerthiganahalli',
+    'Badamanavarthekaval', 'Kanakapura', 'Bannerughatta', 'BTM Layout', 'Kuvempu Layout on Hennur Main Road', 'Marathahalli',
+    'Rajajinagar', 'Whitefield', 'RMV'
+            ];
+    
+            });
+            
+        });
+    </script>
+    
+</body>
+</html>

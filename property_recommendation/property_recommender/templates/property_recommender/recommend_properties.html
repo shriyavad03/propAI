@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Properties</title>
+    {% load custom_filters %}
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="px-3 py-2 border-bottom mb-3">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center">
+            <form class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" role="search">
+                <h3>Property Recommendation System</h3>
+            </form>
+            <div class="text-end">
+                <a href="{% url 'login' %}" class="btn btn-primary" style="text-decoration: none; color: white">Login</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1 class="mt-5">Recommended Properties</h1>
+        {% if recommendations %}
+            <table id="propertyTable" class="table table-striped mt-4">
+                <thead>
+                    <tr>
+                        <th>Property Code</th>
+                        <th>Location</th>
+                        <th>Bedrooms</th>
+                        <th>Price</th>
+                        <th>Amenities</th>
+                        <th>Related Properties</th> <!-- New column for the button -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, property in recommendations.items %}
+                        <tr>
+                            <td>{{ index }}</td>
+                            <td>{{ property|get_item:"Location" }}</td>
+                            <td>{{ property|get_item:"No. of Bedrooms" }}</td>
+                            <td>₹{{ property|get_item:"Price" }}</td>
+                            <td>
+                                {% for amenity in property.Amenities %}
+                                    {% if amenity != "Area" and amenity != "Resale"  and amenity != "Unnamed: 0" %}
+                                        <span class="badge badge-primary">{{ amenity }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-related-properties" data-location="{{ property.Location|escapejs }}" data-bedrooms="{{ property|get_item:'No. of Bedrooms' }}" data-price="{{ property|get_item:'Price' }}">
+                                    Related Properties
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No properties found matching your criteria.</p>
+        {% endif %}
+        <a href="/search">Back to search</a>
+    </div>
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- FontAwesome for icons (optional) -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.btn-related-properties').click(function() {
+                var location = $(this).data('location');
+                var bedrooms = $(this).data('bedrooms');
+                var price = $(this).data('price');
+
+                var minPrice = price - 2000000; // set this to your desired minimum price
+                var maxPrice = price + 2000000; // example: incrementing the max price by 1,000,000
+        
+                window.location.href = '/related_properties/?location=' + encodeURIComponent(location) +
+                                       '&bedrooms=' + bedrooms +
+                                       '&min_price=' + minPrice +
+                                       '&max_price=' + maxPrice; 
+            });
+        });
+    </script>
+</body>
+</html>

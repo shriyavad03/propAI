@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Mapbox -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+
+    <style>
+        #map {
+            height: 400px; /* Reduced height for demonstration */
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="px-3 py-2 border-bottom mb-3">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center">
+            <form class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" role="search">
+                <h3>Property Recommendation System</h3>
+            </form>
+    
+            <div class="text-end">
+                <button type="button" class="btn btn-primary"><a href="{% url 'logout' %}" style="text-decoration: none; color: white">Log out</a></button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Dashboard</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6" id="trafficChart2">
+                <h2>Traffic Data</h2>
+                <canvas id="trafficChart" width="200" height="200"></canvas>
+            </div>
+            <div class="col-md-2">
+                <!-- Empty column -->
+            </div>
+            <div class="col-md-4" id="roomsChart2">
+                <h2>Most Requested Number of Rooms</h2>
+                <canvas id="roomsChart" width="150" height="150"></canvas>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12" id="map2">
+                <h2>Geospatial Visualization</h2>
+                <div id="map"></div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12" id="priceChart2">
+                <h2>Average Max and Min Prices Over the previous week</h2>
+                <canvas id="priceChart" width="400" height="200"></canvas>
+            </div>
+        </div><br><br>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchTrafficData();
+            fetchRoomsData();
+            initializeMap();
+            fetchPriceData();
+        });
+
+        function fetchTrafficData() {
+            fetch('/api/traffic_data/')
+                .then(response => response.json())
+                .then(data => {
+                    var ctx = document.getElementById('trafficChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.hours,
+                            datasets: [{
+                                label: 'Number of Searches',
+                                data: data.counts,
+                                fill: false,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 2,
+                                pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Hour of the Day'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Number of Searches'
+                                    },
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching traffic data:', error));
+        }
+
+        function fetchRoomsData() {
+            fetch('/api/rooms_data/')
+                .then(response => response.json())
+                .then(data => {
+                    var ctx = document.getElementById('roomsChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: data.rooms,
+                            datasets: [{
+                                label: 'Number of Requests',
+                                data: data.counts,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching rooms data:', error));
+        }
+
+        function initializeMap() {
+            mapboxgl.accessToken = 'pk.eyJ1Ijoic2hyaXlhdmFkIiwiYSI6ImNseGtqMWZkOTAyZmQycnIxNmo4am1vc2oifQ.Bzg0Vp9U0ilTM5a8sv8yTw';
+
+            var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [77.5946, 12.9716],
+                zoom: 9
+            });
+
+            fetch('/api/location_frequency_api/')
+                .then(response => response.json())
+                .then(data => {
+                    var locations = data.locations;
+                    var geojson = {
+                        type: 'FeatureCollection',
+                        features: locations.map(location => ({
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Point',
+                                coordinates: location.coordinates
+                            },
+                            properties: {
+                                name: location.name,
+                                count: location.count
+                            }
+                        }))
+                    };
+
+                    map.on('load', function () {
+                        map.addSource('locations', {
+                            type: 'geojson',
+                            data: geojson
+                        });
+
+                        map.addLayer({
+                            id: 'locations-heat',
+                            type: 'heatmap',
+                            source: 'locations',
+                            maxzoom: 15,
+                            paint: {
+                                'heatmap-weight': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['get', 'count'],
+                                    0, 0,
+                                    6, 1
+                                ],
+                                'heatmap-intensity': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['zoom'],
+                                    0, 1,
+                                    15, 3
+                                ],
+                                'heatmap-color': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['heatmap-density'],
+                                    0, 'rgba(33,102,172,0)',
+                                    0.2, 'rgb(103,169,207)',
+                                    0.4, 'rgb(209,229,240)',
+                                    0.6, 'rgb(253,219,199)',
+                                    0.8, 'rgb(239,138,98)',
+                                    1, 'rgb(178,24,43)'
+                                ],
+                                'heatmap-radius': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['zoom'],
+                                    0, 2,
+                                    15, 20
+                                ],
+                                'heatmap-opacity': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['zoom'],
+                                    7, 1,
+                                    15, 0
+                                ],
+                            }
+                        });
+
+                        map.addLayer({
+                            id: 'locations-point',
+                            type: 'circle',
+                            source: 'locations',
+                            minzoom: 14,
+                            paint: {
+                                'circle-radius': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['zoom'],
+                                    14, 5,
+                                    20, 10
+                                ],
+                                'circle-color': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['get', 'count'],
+                                    1, 'rgba(33,102,172,0)',
+                                    2, 'rgb(103,169,207)',
+                                    3, 'rgb(209,229,240)',
+                                    4, 'rgb(253,219,199)',
+                                    5, 'rgb(239,138,98)',
+                                    6, 'rgb(178,24,29)'
+                                ],
+                                'circle-stroke-color': 'white',
+                                'circle-stroke-width': 3,
+                                'circle-opacity': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['zoom'],
+                                    14, 0.9,
+                                    15, 1
+                                ]
+                            }
+                        });
+                    });
+                })
+                .catch(error => console.error('Error fetching location frequency data:', error));
+        }
+
+        function fetchPriceData() {
+            fetch('/api/price_data_new/')
+                .then(response => response.json())
+                .then(data => {
+                    var ctx = document.getElementById('priceChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.dates,
+                            datasets: [{
+                                label: 'Average Max Price',
+                                data: data.avg_max_prices,
+                                fill: false,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 2,
+                                pointBackgroundColor: 'rgba(255, 99, 132, 1)'
+                            }, {
+                                label: 'Average Min Price',
+                                data: data.avg_min_prices,
+                                fill: false,
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 2,
+                                pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Price',
+                                        font: {
+                                            size: 14,
+                                            weight: 'bold'
+                                        }
+                                    },
+                                    ticks: {
+                                        callback: function(value, index, values) {
+                                            return (value / 10000000).toFixed(1) + ' crores'; // Adjust formatting as per your data
+                                        }
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Dates',
+                                        font: {
+                                            size: 14,
+                                            weight: 'bold'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching price data:', error));
+        }
+
+    </script>
+</body>
+</html>
